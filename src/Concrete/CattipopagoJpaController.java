@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
@@ -27,6 +28,12 @@ public class CattipopagoJpaController implements Serializable, ICatTipoPago {
     public CattipopagoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
+
+    public CattipopagoJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("ProyectoPuntoVentaPU");
+    }
+    
+    
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {

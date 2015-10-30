@@ -21,6 +21,7 @@ import Model.Comdireccion;
 import Model.Comestadodireccion;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 
 /**
  *
@@ -31,6 +32,12 @@ public class ComestadodireccionJpaController implements Serializable, IComEstado
     public ComestadodireccionJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
+
+    public ComestadodireccionJpaController() {
+        this.emf = Persistence.createEntityManagerFactory("ProyectoPuntoVentaPU");
+    }
+    
+    
     private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {

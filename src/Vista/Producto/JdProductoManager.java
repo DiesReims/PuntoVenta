@@ -5,8 +5,16 @@ import Control.Interface.IManager;
 import Control.Validacion.CtrlValidacionInfo;
 import Data.Entidad.CatTipoProducto;
 import Data.Entidad.Producto;
+import Model.Proproducto;
+import Model.Cattipoproducto;
+import Concrete.ProproductoJpaController;
+import Concrete.CattipoproductoJpaController;
+import Abstract.IProProducto;
+import Factory.FactoryProProducto;
+import Factory.FactoryCatTipoProducto;
 import java.awt.Dialog;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
@@ -23,6 +31,7 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
     //<editor-fold defaultstate="collapsed" desc="Variables">
     private CtrlValidacionInfo ctrlValidacionInfo = new CtrlValidacionInfo();
     private Producto baseEntity;
+    private Proproducto baseEntityJPA;
     private int idEstado;
     private int idAccion = 0;
     boolean conCambios = false;
@@ -30,6 +39,10 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
     private boolean camCombo = false;
     private boolean camJTable = false;
     String prueba = "Hola";
+    
+    //<editor-fold defaultstate="collapsed" desc="JPA Código Modificado">
+     public IProProducto factory = FactoryProProducto.getInstance().getInstanceAbstract();
+//</editor-fold>
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Constructor">
@@ -255,16 +268,25 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
 //                if (res == 0) {
 //                    JOptionPane.showMessageDialog(null, "Hubo un Cambio");
             if (this.validaDatos() == true) {
-                this.baseEntity.setStrValor(this.txtNombre.getText().trim());
-                this.baseEntity.setStrCodigo(this.txtIdentificador.getText().trim());
-                this.baseEntity.setIntCantidad(Integer.parseInt(this.txtCantidad.getText().trim()));
-                this.baseEntity.setDblPrecioCompra(Double.parseDouble(this.txtPrecioCompra.getText().trim()));
-                this.baseEntity.setDblPrecioVenta(Double.parseDouble(this.txtPrecioVenta.getText().trim()));
+//                this.baseEntity.setStrValor(this.txtNombre.getText().trim());
+//                this.baseEntity.setStrCodigo(this.txtIdentificador.getText().trim());
+//                this.baseEntity.setIntCantidad(Integer.parseInt(this.txtCantidad.getText().trim()));
+//                this.baseEntity.setDblPrecioCompra(Double.parseDouble(this.txtPrecioCompra.getText().trim()));
+//                this.baseEntity.setDblPrecioVenta(Double.parseDouble(this.txtPrecioVenta.getText().trim()));
+                
+                this.baseEntityJPA.setStrnombre(this.txtNombre.getText().trim());
+                this.baseEntityJPA.setStridentificador(this.txtIdentificador.getText().trim());
+                this.baseEntityJPA.setIntcantidad(Integer.parseInt(this.txtCantidad.getText().trim()));
+                this.baseEntityJPA.setDecpreciocompra(Double.parseDouble(this.txtPrecioCompra.getText().trim()));
+                this.baseEntityJPA.setDecprecioventa(Double.parseDouble(this.txtPrecioVenta.getText().trim()));
+                
                 //aqui falta la linea para obtener el combo seleccionado
                 if (this.idAccion == 0) {
-                    this.baseEntity.setIdTipoProducto(this.cmbCategoria.getSelectedIndex());
+//                    this.baseEntity.setIdTipoProducto(this.cmbCategoria.getSelectedIndex());
+                    this.baseEntityJPA.setIdcattipoproducto((Cattipoproducto) this.cmbCategoria.getSelectedItem());
                 } else {
                     this.baseEntity.setIdTipoProducto(this.cmbCategoria.getSelectedIndex() + 1);
+                     this.baseEntityJPA.setIdcattipoproducto((Cattipoproducto) this.cmbCategoria.getSelectedItem());
                 }
                 //se cierra la pantalla
                 this.conCambios = false;
@@ -280,12 +302,14 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
 //            }
         } catch (Exception _e) {
             System.out.println(_e.getMessage());
+            System.out.println(_e.getStackTrace());
         }
     }//GEN-LAST:event_btnAceptarActionPerformed
 
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         try {
             this.baseEntity = null;
+            this.baseEntityJPA = null;
             this.dispose();
         } catch (Exception _e) {
             System.out.println(_e.getMessage());
@@ -381,16 +405,29 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
     @Override
     public Object showDialog(Object _obj) {
         try {
-            this.baseEntity = (Producto) _obj;
-            this.idAccion = (this.baseEntity != null) ? this.baseEntity.getId() : 0;
+//            this.baseEntity = (Producto) _obj;
+            this.baseEntityJPA = (Proproducto) _obj;
+//            this.idAccion = (this.baseEntity != null) ? this.baseEntity.getId() : 0;
+            this.idAccion = (this.baseEntityJPA != null)? this.baseEntityJPA.getId():0;
             if (this.idAccion == 0) {
-                this.baseEntity = new Producto();
+//                this.baseEntity = new Producto();
+                this.baseEntityJPA = new Proproducto();
             }
-            this.idEstado = this.baseEntity.getIdTipoProducto();//obtener el id de estado para el combo de editar
+//            this.idEstado = this.baseEntity.getIdTipoProducto();//obtener el id de estado para el combo de editar
+            if (this.baseEntityJPA.getIdcattipoproducto() == null) {
+                this.idEstado = 0;
+            }
+            else
+            {
+                 this.idEstado = this.baseEntityJPA.getIdcattipoproducto().getId();//Remember that idCatTipoproducto es la entidad!
+            }
+//           
+            
             this.setLoadInformation();
             this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
             this.setVisible(true);
-            return (this.baseEntity != null) ? this.baseEntity : null;
+//            return (this.baseEntity != null) ? this.baseEntity : null;
+           return (this.baseEntityJPA != null) ? this.baseEntityJPA : null;
         } catch (Exception _e) {
             System.out.println(_e.getMessage());
             return null;
@@ -408,7 +445,7 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
                 JOptionPane.showMessageDialog(null, "El campo de código no es valido");
                 return false;
             }
-                if (!ctrlValidacionInfo.validacionNoCaracteres(this.txtIdentificador.getText())) {
+                if (ctrlValidacionInfo.validacionNoCaracteres(this.txtIdentificador.getText())) {
                 JOptionPane.showMessageDialog(null, "El campo de código no es valido");
                 return false;
             }
@@ -478,18 +515,21 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
                DefaultComboBoxModel x = new DefaultComboBoxModel();
             CtrlCatTipoProducto ctrlCatTipoProducto = new CtrlCatTipoProducto();
             ArrayList<Object> lista = ctrlCatTipoProducto.ConsultaGeneral(null);
+            List<Cattipoproducto> tipoProductos = FactoryCatTipoProducto.getInstance().getInstanceAllTipoProducto();
             
             if (this.idAccion == 0) {
                 //leyenda seleccionar
                 x.addElement("Selecciona");
-                for (int i = 0; i < lista.size(); i++) {
-                    CatTipoProducto tempObject = (CatTipoProducto) lista.get(i);
+                for (int i = 0; i < tipoProductos.size(); i++) {
+//                    CatTipoProducto tempObject = (CatTipoProducto) lista.get(i);
+                    Cattipoproducto tempObject = tipoProductos.get(i);
                     x.addElement(tempObject);
                 }
                 cmbCategoria.setModel(x);
             } else {
                 for (int i = 0; i < lista.size(); i++) {
-                    CatTipoProducto tempObject = (CatTipoProducto) lista.get(i);
+//                    CatTipoProducto tempObject = (CatTipoProducto) lista.get(i);
+                     Cattipoproducto tempObject = tipoProductos.get(i);
                     x.addElement(tempObject);
                 }
                 cmbCategoria.setModel(x);
@@ -536,11 +576,19 @@ public class JdProductoManager extends javax.swing.JDialog implements IManager {
     @Override
     public void setTextField() {
         try {
-            this.txtNombre.setText(((this.baseEntity != null) ? this.baseEntity.getStrValor() : ""));
-            this.txtIdentificador.setText(((this.baseEntity != null) ? this.baseEntity.getStrCodigo() : ""));
-            this.txtCantidad.setText((this.baseEntity != null) ? String.valueOf(this.baseEntity.getIntCantidad()) : "");
-            this.txtPrecioCompra.setText((this.baseEntity != null) ? String.valueOf(this.baseEntity.getDblPrecioCompra()) : "");
-            this.txtPrecioVenta.setText((this.baseEntity != null) ? String.valueOf(this.baseEntity.getDblPrecioVenta()) : "");
+//            this.txtNombre.setText(((this.baseEntity != null) ? this.baseEntity.getStrValor() : ""));
+//            this.txtIdentificador.setText(((this.baseEntity != null) ? this.baseEntity.getStrCodigo() : ""));
+//            this.txtCantidad.setText((this.baseEntity != null) ? String.valueOf(this.baseEntity.getIntCantidad()) : "");
+//            this.txtPrecioCompra.setText((this.baseEntity != null) ? String.valueOf(this.baseEntity.getDblPrecioCompra()) : "");
+//            this.txtPrecioVenta.setText((this.baseEntity != null) ? String.valueOf(this.baseEntity.getDblPrecioVenta()) : "");
+            
+            //<editor-fold defaultstate="collapsed" desc="JPA Código Modificado">
+            this.txtNombre.setText(((this.baseEntityJPA != null) ? this.baseEntityJPA.getStrnombre(): ""));
+            this.txtIdentificador.setText(((this.baseEntityJPA != null) ? this.baseEntityJPA.getStridentificador(): ""));
+            this.txtCantidad.setText((this.baseEntityJPA != null) ? String.valueOf(this.baseEntityJPA.getIntcantidad()) : "");
+            this.txtPrecioCompra.setText((this.baseEntityJPA != null) ? String.valueOf(this.baseEntityJPA.getDecpreciocompra()) : "");
+            this.txtPrecioVenta.setText((this.baseEntityJPA != null) ? String.valueOf(this.baseEntityJPA.getDecprecioventa()) : "");
+//</editor-fold>
         } catch (Exception _e) {
             System.out.println(_e.getMessage());
         }

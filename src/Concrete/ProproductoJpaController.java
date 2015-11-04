@@ -49,21 +49,15 @@ public class ProproductoJpaController implements IProProducto {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Proproveedor idproveedor = proproducto.getIdproveedor();
-            if (idproveedor != null) {
-                idproveedor = em.getReference(idproveedor.getClass(), idproveedor.getId());
-                proproducto.setIdproveedor(idproveedor);
-            }
+            
+        
             Cattipoproducto idcattipoproducto = proproducto.getIdcattipoproducto();
             if (idcattipoproducto != null) {
                 idcattipoproducto = em.getReference(idcattipoproducto.getClass(), idcattipoproducto.getId());
                 proproducto.setIdcattipoproducto(idcattipoproducto);
             }
             em.persist(proproducto);
-            if (idproveedor != null) {
-                idproveedor.getProproductoList().add(proproducto);
-                idproveedor = em.merge(idproveedor);
-            }
+          
             if (idcattipoproducto != null) {
                 idcattipoproducto.getProproductoList().add(proproducto);
                 idcattipoproducto = em.merge(idcattipoproducto);
@@ -83,27 +77,15 @@ public class ProproductoJpaController implements IProProducto {
             em = getEntityManager();
             em.getTransaction().begin();
             Proproducto persistentProproducto = em.find(Proproducto.class, proproducto.getId());
-            Proproveedor idproveedorOld = persistentProproducto.getIdproveedor();
-            Proproveedor idproveedorNew = proproducto.getIdproveedor();
+
             Cattipoproducto idcattipoproductoOld = persistentProproducto.getIdcattipoproducto();
             Cattipoproducto idcattipoproductoNew = proproducto.getIdcattipoproducto();
-            if (idproveedorNew != null) {
-                idproveedorNew = em.getReference(idproveedorNew.getClass(), idproveedorNew.getId());
-                proproducto.setIdproveedor(idproveedorNew);
-            }
+            
             if (idcattipoproductoNew != null) {
                 idcattipoproductoNew = em.getReference(idcattipoproductoNew.getClass(), idcattipoproductoNew.getId());
                 proproducto.setIdcattipoproducto(idcattipoproductoNew);
             }
-            proproducto = em.merge(proproducto);
-            if (idproveedorOld != null && !idproveedorOld.equals(idproveedorNew)) {
-                idproveedorOld.getProproductoList().remove(proproducto);
-                idproveedorOld = em.merge(idproveedorOld);
-            }
-            if (idproveedorNew != null && !idproveedorNew.equals(idproveedorOld)) {
-                idproveedorNew.getProproductoList().add(proproducto);
-                idproveedorNew = em.merge(idproveedorNew);
-            }
+            proproducto = em.merge(proproducto);          
             if (idcattipoproductoOld != null && !idcattipoproductoOld.equals(idcattipoproductoNew)) {
                 idcattipoproductoOld.getProproductoList().remove(proproducto);
                 idcattipoproductoOld = em.merge(idcattipoproductoOld);
@@ -141,11 +123,6 @@ public class ProproductoJpaController implements IProProducto {
                 proproducto.getId();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The proproducto with id " + id + " no longer exists.", enfe);
-            }
-            Proproveedor idproveedor = proproducto.getIdproveedor();
-            if (idproveedor != null) {
-                idproveedor.getProproductoList().remove(proproducto);
-                idproveedor = em.merge(idproveedor);
             }
             Cattipoproducto idcattipoproducto = proproducto.getIdcattipoproducto();
             if (idcattipoproducto != null) {

@@ -19,8 +19,6 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -28,7 +26,6 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "procatstatusproveedor")
-@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Procatstatusproveedor.findAll", query = "SELECT p FROM Procatstatusproveedor p"),
     @NamedQuery(name = "Procatstatusproveedor.findById", query = "SELECT p FROM Procatstatusproveedor p WHERE p.id = :id"),
@@ -85,7 +82,6 @@ public class Procatstatusproveedor implements Serializable {
         this.strdescripcion = strdescripcion;
     }
 
-    @XmlTransient
     public List<Proproveedor> getProproveedorList() {
         return proproveedorList;
     }

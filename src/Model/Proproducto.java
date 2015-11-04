@@ -18,7 +18,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
@@ -26,7 +25,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Entity
 @Table(name = "proproducto")
-@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Proproducto.findAll", query = "SELECT p FROM Proproducto p"),
     @NamedQuery(name = "Proproducto.findById", query = "SELECT p FROM Proproducto p WHERE p.id = :id"),
@@ -60,9 +58,6 @@ public class Proproducto implements Serializable {
     private double decprecioventa;
     @Column(name = "strdescripcion")
     private String strdescripcion;
-    @JoinColumn(name = "idproveedor", referencedColumnName = "id")
-    @ManyToOne(optional = false)
-    private Proproveedor idproveedor;
     @JoinColumn(name = "idcattipoproducto", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Cattipoproducto idcattipoproducto;
@@ -137,14 +132,6 @@ public class Proproducto implements Serializable {
 
     public void setStrdescripcion(String strdescripcion) {
         this.strdescripcion = strdescripcion;
-    }
-
-    public Proproveedor getIdproveedor() {
-        return idproveedor;
-    }
-
-    public void setIdproveedor(Proproveedor idproveedor) {
-        this.idproveedor = idproveedor;
     }
 
     public Cattipoproducto getIdcattipoproducto() {

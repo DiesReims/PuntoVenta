@@ -7,9 +7,7 @@
 package Model;
 
 import java.io.Serializable;
-import java.util.List;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,10 +18,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -31,7 +26,6 @@ import javax.xml.bind.annotation.XmlTransient;
  */
 @Entity
 @Table(name = "proproveedor")
-@XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "Proproveedor.findAll", query = "SELECT p FROM Proproveedor p"),
     @NamedQuery(name = "Proproveedor.findById", query = "SELECT p FROM Proproveedor p WHERE p.id = :id"),
@@ -70,8 +64,6 @@ public class Proproveedor implements Serializable {
     @JoinColumn(name = "idcattipoproveedor", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Cattipoproveedor idcattipoproveedor;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idproveedor")
-    private List<Proproducto> proproductoList;
 
     public Proproveedor() {
     }
@@ -158,15 +150,6 @@ public class Proproveedor implements Serializable {
 
     public void setIdcattipoproveedor(Cattipoproveedor idcattipoproveedor) {
         this.idcattipoproveedor = idcattipoproveedor;
-    }
-
-    @XmlTransient
-    public List<Proproducto> getProproductoList() {
-        return proproductoList;
-    }
-
-    public void setProproductoList(List<Proproducto> proproductoList) {
-        this.proproductoList = proproductoList;
     }
 
     @Override

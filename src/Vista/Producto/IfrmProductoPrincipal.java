@@ -1,12 +1,19 @@
 package Vista.Producto;
 
+import Abstract.ICatTipoProducto;
+import Abstract.IProProducto;
 import Control.Control.CtrlCatTipoProducto;
 import Control.Control.CtrlProducto;
+import Factory.FactoryCatTipoProducto;
+import Factory.FactoryProProducto;
 import Data.Entidad.CatTipoProducto;
 import Data.Entidad.Producto;
+import Model.Proproducto;
+import Model.Cattipoproducto;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -29,6 +36,12 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
     private int filac;
     private String consultaE;
     Producto baseEntity = new Producto();
+    Proproducto baseEntityJPA = new Proproducto();
+    
+    //<editor-fold defaultstate="collapsed" desc="Variables JPA Migration">
+    public IProProducto factory = FactoryProProducto.getInstance().getInstanceAbstract();
+//</editor-fold>
+    
 //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Constructor">
@@ -74,21 +87,26 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
     public void loadFiltros() {
         try {
             CtrlCatTipoProducto ctrlCatTipoProducto = new CtrlCatTipoProducto();
-            ArrayList<Object> lista = ctrlCatTipoProducto.ConsultaGeneral(null);
-            for (int i = 0; i < lista.size(); i++) {
+            ArrayList<Object> lista = ctrlCatTipoProducto.ConsultaGeneral(null);           
+            //<editor-fold defaultstate="collapsed" desc="JPA CatTipoProducto Modificado">
+            List<Cattipoproducto> listaTipoProducto = FactoryCatTipoProducto.getInstance().getInstanceAllTipoProducto();
+//</editor-fold>         
+            for (int i = 0; i < listaTipoProducto.size(); i++) {
                 Object[] filaTemp = new Object[2];
-                CatTipoProducto objTemp = (CatTipoProducto) lista.get(i);
+//                CatTipoProducto objTemp = (CatTipoProducto) lista.get(i);
+                 Cattipoproducto objTemp =  listaTipoProducto.get(i);
                 filaTemp[0] = objTemp.getId();
-                filaTemp[1] = objTemp.getStrValor();
+                filaTemp[1] = objTemp.getStrvalor();
                 t.addRow(filaTemp);
                 jtFiltro.setModel(t);
-
                 jtFiltro.getColumn("ID").setPreferredWidth(0);
                 jtFiltro.getColumn("ID").setMinWidth(0);
                 jtFiltro.getColumn("ID").setMaxWidth(0);
                 jtFiltro.getColumn("ID").setWidth(0);
             }
         } catch (Exception e) {
+            System.out.println(e.getStackTrace());
+            System.out.println(e.getMessage());
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error al cargar los filtros");
         }
     }
@@ -97,22 +115,28 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
     //<editor-fold defaultstate="collapsed" desc="MTD Load Registros">
     public void loadRegistros() {
         try {
-            ArrayList<Object> lista = this.ctrlProducto.ConsultaNoCatalogo(this.id);
-
-            for (int i = 0; i < lista.size(); i++) {
+//            ArrayList<Object> lista = this.ctrlProducto.ConsultaNoCatalogo(this.id);
+            //<editor-fold defaultstate="collapsed" desc="JPA ProProducto Código Modificado">
+            List<Proproducto> productos = FactoryProProducto.getInstance().getInstanceCatalogo(this.id);
+//</editor-fold>         
+//            for (int i = 0; i < lista.size(); i++) {
+             for (int i = 0; i < productos.size(); i++) {
                 Object[] filaTemp1 = new Object[2];
-                Producto tempObject = (Producto) lista.get(i);
+//                Producto tempObject = (Producto) lista.get(i);
+                Proproducto tempObject = (Proproducto) productos.get(i);
                 filaTemp1[0] = tempObject.getId();
-                filaTemp1[1] = tempObject.getStrValor();
+                filaTemp1[1] = tempObject.getStrnombre();
                 tc.addRow(filaTemp1);
                 jtCentral.setModel(tc);
                 jtCentral.getColumn("ID").setPreferredWidth(0);
                 jtCentral.getColumn("ID").setMinWidth(0);
                 jtCentral.getColumn("ID").setMaxWidth(0);
                 jtCentral.getColumn("ID").setWidth(0);
-            }
-
+             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause());
+            System.out.println(e.getStackTrace());
             JOptionPane.showMessageDialog(null, "Ha ocurrido un error al cargar la información");
         }
     }
@@ -132,15 +156,27 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
         try {
             filac = jtCentral.getSelectedRow();
             if (filac != -1) {
+//                this.idcentral = (int) jtCentral.getValueAt(filac, 0);
+//                this.baseEntity.setId(this.idcentral);
+//                this.baseEntity = (Producto) ctrlProducto.ConsultaEspecifica(this.baseEntity);
+//                this.lblCategoria.setText(String.valueOf(jtFiltro.getValueAt(fila, 1)));
+//                this.lblCodigo.setText(this.baseEntity.getStrCodigo());
+//                this.lblProducto.setText(this.baseEntity.getStrValor());
+//                this.lblCantidad.setText(String.valueOf(this.baseEntity.getIntCantidad()));
+//                this.lblPrecioCompra.setText(String.valueOf(this.baseEntity.getDblPrecioCompra()));
+//                this.lblPrecioVenta.setText(String.valueOf(this.baseEntity.getDblPrecioVenta()));
+                
+                //<editor-fold defaultstate="collapsed" desc="JPA Código Modificado">
                 this.idcentral = (int) jtCentral.getValueAt(filac, 0);
-                this.baseEntity.setId(this.idcentral);
-                this.baseEntity = (Producto) ctrlProducto.ConsultaEspecifica(this.baseEntity);
+                this.baseEntityJPA.setId(this.idcentral);
+                this.baseEntityJPA = FactoryProProducto.getInstance().getInstanceSpecificById(baseEntityJPA);
                 this.lblCategoria.setText(String.valueOf(jtFiltro.getValueAt(fila, 1)));
-                this.lblCodigo.setText(this.baseEntity.getStrCodigo());
-                this.lblProducto.setText(this.baseEntity.getStrValor());
-                this.lblCantidad.setText(String.valueOf(this.baseEntity.getIntCantidad()));
-                this.lblPrecioCompra.setText(String.valueOf(this.baseEntity.getDblPrecioCompra()));
-                this.lblPrecioVenta.setText(String.valueOf(this.baseEntity.getDblPrecioVenta()));
+                this.lblCodigo.setText(this.baseEntityJPA.getStridentificador());
+                this.lblProducto.setText(this.baseEntityJPA.getStrnombre());
+                this.lblCantidad.setText(String.valueOf(this.baseEntityJPA.getIntcantidad()));
+                this.lblPrecioCompra.setText(String.valueOf(this.baseEntityJPA.getDecpreciocompra()));
+                this.lblPrecioVenta.setText(String.valueOf(this.baseEntityJPA.getDecprecioventa()));
+//</editor-fold>
             }
         } catch (Exception _e) {
             System.out.println(_e.getMessage());
@@ -507,23 +543,22 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
             JdProductoManager manager = new JdProductoManager();
             //manager.setVisible(true);
             Object objTemp = manager.showDialog(null);
-            Producto conf = (Producto) objTemp;
+//            Producto conf = (Producto) objTemp;
+            Proproducto confJPA = (Proproducto) objTemp;
             //si el conf es diferente de null
             if (objTemp != null) {
-                //invocamos nuestra controladora para agregar
-                if (ctrlProducto.Agregar(objTemp)) {
+                //Invocamos nuestra controladora para agregar
+//                if (ctrlProducto.Agregar(objTemp)) {
+                    this.factory.create(confJPA);
                     //si el guardado fue correcto manda un mensaje
-                     Notification.show("Mensaje del sistema","Registro exitoso",Notification.NICON_LIGHT_THEME,true,Notification.OK_MESSAGE,2000);
-                } else {
-                    //delo contrario = pero indicando
-                     Notification.show("Mensaje del sistema","Registro falló",Notification.NICON_LIGHT_THEME,true,Notification.ERROR_MESSAGE,2000);
-                }
+                     Notification.show("Mensaje del sistema","Registro exitoso",Notification.NICON_LIGHT_THEME,true,Notification.OK_MESSAGE,2000);             
             }
-            //actualiza los datos del jtable de resultado
+            //Actualiza los datos del jtable de resultado
             this.limpiarTabla();
             this.loadRegistros();
             this.jtCentral.setRowSelectionInterval(0, 0);
         } catch (Exception _e) {
+             Notification.show("Mensaje del sistema","Registro falló",Notification.NICON_LIGHT_THEME,true,Notification.ERROR_MESSAGE,2000);
             System.out.println(_e.getMessage());
         }
     }//GEN-LAST:event_btnAgregarActionPerformed
@@ -532,15 +567,19 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
     //<editor-fold defaultstate="collapsed" desc="EVT Buscar">
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         try {
-            this.baseEntity.setIdTipoProducto(id);
-            this.baseEntity.setStrCodigo(this.txtBuscar.getText().trim());
-            ArrayList<Object> lista = ctrlProducto.ConsultaBuscar(this.baseEntity);
+//            this.baseEntity.setIdTipoProducto(id);
+//            this.baseEntity.setStrCodigo(this.txtBuscar.getText().trim());
+            this.baseEntityJPA.getIdcattipoproducto().setId(id);
+            this.baseEntityJPA.setStrnombre(this.txtBuscar.getText().trim());
+//            ArrayList<Object> lista = ctrlProducto.ConsultaBuscar(this.baseEntity);
+            List<Proproducto> productos = FactoryProProducto.getInstance().getInstanceBusquedaProductoNombre(baseEntityJPA);
             this.limpiarTabla();
-            for (int i = 0; i < lista.size(); i++) {
+            for (int i = 0; i < productos.size(); i++) {
                 Object[] filaTemp1 = new Object[2];
-                Producto tempObject = (Producto) lista.get(i);
+//                Producto tempObject = (Producto) lista.get(i);
+                Proproducto tempObject = productos.get(i);
                 filaTemp1[0] = tempObject.getId();
-                filaTemp1[1] = tempObject.getStrValor();
+                filaTemp1[1] = tempObject.getStrnombre();
                 tc.addRow(filaTemp1);
                 jtCentral.setModel(tc);
                 jtCentral.getColumn("ID").setPreferredWidth(0);
@@ -565,25 +604,25 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
             try {
                 JdProductoManager manager = new JdProductoManager();
                 this.baseEntity.setId(this.idcentral);
+                this.baseEntityJPA.setId(this.idcentral);
                 this.baseEntity = (Producto) ctrlProducto.ConsultaEspecifica(this.baseEntity);
+                this.baseEntityJPA = FactoryProProducto.getInstance().getInstanceSpecificById(baseEntityJPA);              
                 Object objTemp = manager.showDialog(this.baseEntity);
-                Producto objResultado = (Producto) objTemp;
+//                Producto objResultado = (Producto) objTemp;
+                Proproducto objResultado = (Proproducto) objTemp;
                 //si el conf es diferente de null
                 if (objTemp != null) {
                     //invocamos nuestra controladora para agregar
-                    if (ctrlProducto.Modificar(objResultado)) {
+                        factory.edit(objResultado);
                         //si el guardado fue correcto manda un mensaje
-                        Notification.show("Mensaje del sistema","Registro actualizado",Notification.NICON_LIGHT_THEME,true,Notification.OK_MESSAGE,2000);
-                    } else {
-                        //delo contrario = pero indicando
-                       Notification.show("Mensaje del sistema","Registro falló",Notification.NICON_LIGHT_THEME,true,Notification.ERROR_MESSAGE,2000);
-                    }
-                }
+                        Notification.show("Mensaje del sistema","Registro actualizado",Notification.NICON_LIGHT_THEME,true,Notification.OK_MESSAGE,2000);                           
+                        }
                 //actualiza los datos del jtable de resultado
                 this.limpiarTabla();
                 this.loadRegistros();
                 jtCentral.setRowSelectionInterval(0, 0);
             } catch (Exception _e) {
+                 Notification.show("Mensaje del sistema","Registro falló",Notification.NICON_LIGHT_THEME,true,Notification.ERROR_MESSAGE,2000);
                 System.out.println(_e.getMessage());
             }
         } else {
@@ -644,6 +683,18 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
                 this.lblCantidad.setText(String.valueOf(this.baseEntity.getIntCantidad()));
                 this.lblPrecioCompra.setText(String.valueOf(this.baseEntity.getDblPrecioCompra()));
                 this.lblPrecioVenta.setText(String.valueOf(this.baseEntity.getDblPrecioVenta()));
+                
+                //<editor-fold defaultstate="collapsed" desc="JPA Código Modificado">
+                    this.idcentral = (int) jtCentral.getValueAt(filac, 0);
+                this.baseEntityJPA.setId(this.idcentral);
+                this.baseEntityJPA = FactoryProProducto.getInstance().getInstanceSpecificById(baseEntityJPA);
+                this.lblCategoria.setText(String.valueOf(jtFiltro.getValueAt(fila, 1)));
+                this.lblCodigo.setText(this.baseEntityJPA.getStridentificador());
+                this.lblProducto.setText(this.baseEntityJPA.getStrnombre());
+                this.lblCantidad.setText(String.valueOf(this.baseEntityJPA.getIntcantidad()));
+                this.lblPrecioCompra.setText(String.valueOf(this.baseEntityJPA.getDecpreciocompra()));
+                this.lblPrecioVenta.setText(String.valueOf(this.baseEntityJPA.getDecprecioventa()));
+//</editor-fold>
             }
         } catch (Exception _e) {
             System.out.println(_e.getMessage());
@@ -663,9 +714,7 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
 //                lblvalor.setText(String.valueOf(jtCentral.getValueAt(filac, 1)));
 //                lbldescripcion.setText(String.valueOf(jtEstado.getValueAt(fila, 1)));
                 this.idcentral = (int) jtCentral.getValueAt(filac, 0);
-
             }
-
             System.out.println("arriba");
         }
         if (c == KeyEvent.VK_DOWN) {
@@ -676,9 +725,7 @@ public class IfrmProductoPrincipal extends javax.swing.JInternalFrame {
 //                lblvalor.setText(String.valueOf(jtCentral.getValueAt(filac, 1)));
 //                lbldescripcion.setText(String.valueOf(jtEstado.getValueAt(fila, 1)));
                 this.idcentral = (int) jtCentral.getValueAt(filac, 0);
-
             }
-
             System.out.println("abajo");
         }
     }//GEN-LAST:event_jtCentralKeyPressed

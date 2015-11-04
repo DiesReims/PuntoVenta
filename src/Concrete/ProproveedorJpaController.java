@@ -6,8 +6,6 @@
 
 package Concrete;
 
-import Abstract.IProProveedor;
-import Concrete.exceptions.IllegalOrphanException;
 import Concrete.exceptions.NonexistentEntityException;
 import java.io.Serializable;
 import javax.persistence.Query;
@@ -18,9 +16,7 @@ import Model.Procatstatusproveedor;
 import Model.Comestadodireccion;
 import Model.Comdatocontacto;
 import Model.Cattipoproveedor;
-import Model.Proproducto;
 import Model.Proproveedor;
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,28 +26,24 @@ import javax.persistence.Persistence;
  *
  * @author Dies
  */
-public class ProproveedorJpaController implements Serializable, IProProveedor {
+public class ProproveedorJpaController implements Serializable {
 
     public ProproveedorJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
+    private EntityManagerFactory emf = null;
 
     public ProproveedorJpaController() {
-        this.emf = Persistence.createEntityManagerFactory("ProyectoPuntoVentaPU");
+         this.emf = Persistence.createEntityManagerFactory("ProyectoPuntoVentaPU");
     }
     
     
-    private EntityManagerFactory emf = null;
 
     public EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
 
-    @Override
     public void create(Proproveedor proproveedor) {
-        if (proproveedor.getProproductoList() == null) {
-            proproveedor.setProproductoList(new ArrayList<Proproducto>());
-        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -76,12 +68,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
                 idcattipoproveedor = em.getReference(idcattipoproveedor.getClass(), idcattipoproveedor.getId());
                 proproveedor.setIdcattipoproveedor(idcattipoproveedor);
             }
-            List<Proproducto> attachedProproductoList = new ArrayList<Proproducto>();
-            for (Proproducto proproductoListProproductoToAttach : proproveedor.getProproductoList()) {
-                proproductoListProproductoToAttach = em.getReference(proproductoListProproductoToAttach.getClass(), proproductoListProproductoToAttach.getId());
-                attachedProproductoList.add(proproductoListProproductoToAttach);
-            }
-            proproveedor.setProproductoList(attachedProproductoList);
             em.persist(proproveedor);
             if (idprocatstatusproveedor != null) {
                 idprocatstatusproveedor.getProproveedorList().add(proproveedor);
@@ -99,15 +85,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
                 idcattipoproveedor.getProproveedorList().add(proproveedor);
                 idcattipoproveedor = em.merge(idcattipoproveedor);
             }
-            for (Proproducto proproductoListProproducto : proproveedor.getProproductoList()) {
-                Proproveedor oldIdproveedorOfProproductoListProproducto = proproductoListProproducto.getIdproveedor();
-                proproductoListProproducto.setIdproveedor(proproveedor);
-                proproductoListProproducto = em.merge(proproductoListProproducto);
-                if (oldIdproveedorOfProproductoListProproducto != null) {
-                    oldIdproveedorOfProproductoListProproducto.getProproductoList().remove(proproductoListProproducto);
-                    oldIdproveedorOfProproductoListProproducto = em.merge(oldIdproveedorOfProproductoListProproducto);
-                }
-            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -116,8 +93,7 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
         }
     }
 
-    @Override
-    public void edit(Proproveedor proproveedor) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(Proproveedor proproveedor) throws NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -131,20 +107,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
             Comdatocontacto idcomdatocontactoNew = proproveedor.getIdcomdatocontacto();
             Cattipoproveedor idcattipoproveedorOld = persistentProproveedor.getIdcattipoproveedor();
             Cattipoproveedor idcattipoproveedorNew = proproveedor.getIdcattipoproveedor();
-            List<Proproducto> proproductoListOld = persistentProproveedor.getProproductoList();
-            List<Proproducto> proproductoListNew = proproveedor.getProproductoList();
-            List<String> illegalOrphanMessages = null;
-            for (Proproducto proproductoListOldProproducto : proproductoListOld) {
-                if (!proproductoListNew.contains(proproductoListOldProproducto)) {
-                    if (illegalOrphanMessages == null) {
-                        illegalOrphanMessages = new ArrayList<String>();
-                    }
-                    illegalOrphanMessages.add("You must retain Proproducto " + proproductoListOldProproducto + " since its idproveedor field is not nullable.");
-                }
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
-            }
             if (idprocatstatusproveedorNew != null) {
                 idprocatstatusproveedorNew = em.getReference(idprocatstatusproveedorNew.getClass(), idprocatstatusproveedorNew.getId());
                 proproveedor.setIdprocatstatusproveedor(idprocatstatusproveedorNew);
@@ -161,13 +123,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
                 idcattipoproveedorNew = em.getReference(idcattipoproveedorNew.getClass(), idcattipoproveedorNew.getId());
                 proproveedor.setIdcattipoproveedor(idcattipoproveedorNew);
             }
-            List<Proproducto> attachedProproductoListNew = new ArrayList<Proproducto>();
-            for (Proproducto proproductoListNewProproductoToAttach : proproductoListNew) {
-                proproductoListNewProproductoToAttach = em.getReference(proproductoListNewProproductoToAttach.getClass(), proproductoListNewProproductoToAttach.getId());
-                attachedProproductoListNew.add(proproductoListNewProproductoToAttach);
-            }
-            proproductoListNew = attachedProproductoListNew;
-            proproveedor.setProproductoList(proproductoListNew);
             proproveedor = em.merge(proproveedor);
             if (idprocatstatusproveedorOld != null && !idprocatstatusproveedorOld.equals(idprocatstatusproveedorNew)) {
                 idprocatstatusproveedorOld.getProproveedorList().remove(proproveedor);
@@ -201,17 +156,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
                 idcattipoproveedorNew.getProproveedorList().add(proproveedor);
                 idcattipoproveedorNew = em.merge(idcattipoproveedorNew);
             }
-            for (Proproducto proproductoListNewProproducto : proproductoListNew) {
-                if (!proproductoListOld.contains(proproductoListNewProproducto)) {
-                    Proproveedor oldIdproveedorOfProproductoListNewProproducto = proproductoListNewProproducto.getIdproveedor();
-                    proproductoListNewProproducto.setIdproveedor(proproveedor);
-                    proproductoListNewProproducto = em.merge(proproductoListNewProproducto);
-                    if (oldIdproveedorOfProproductoListNewProproducto != null && !oldIdproveedorOfProproductoListNewProproducto.equals(proproveedor)) {
-                        oldIdproveedorOfProproductoListNewProproducto.getProproductoList().remove(proproductoListNewProproducto);
-                        oldIdproveedorOfProproductoListNewProproducto = em.merge(oldIdproveedorOfProproductoListNewProproducto);
-                    }
-                }
-            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -229,8 +173,7 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
         }
     }
 
-    @Override
-    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
+    public void destroy(Integer id) throws NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -241,17 +184,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
                 proproveedor.getId();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The proproveedor with id " + id + " no longer exists.", enfe);
-            }
-            List<String> illegalOrphanMessages = null;
-            List<Proproducto> proproductoListOrphanCheck = proproveedor.getProproductoList();
-            for (Proproducto proproductoListOrphanCheckProproducto : proproductoListOrphanCheck) {
-                if (illegalOrphanMessages == null) {
-                    illegalOrphanMessages = new ArrayList<String>();
-                }
-                illegalOrphanMessages.add("This Proproveedor (" + proproveedor + ") cannot be destroyed since the Proproducto " + proproductoListOrphanCheckProproducto + " in its proproductoList field has a non-nullable idproveedor field.");
-            }
-            if (illegalOrphanMessages != null) {
-                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             Procatstatusproveedor idprocatstatusproveedor = proproveedor.getIdprocatstatusproveedor();
             if (idprocatstatusproveedor != null) {
@@ -282,12 +214,10 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
         }
     }
 
-    @Override
     public List<Proproveedor> findProproveedorEntities() {
         return findProproveedorEntities(true, -1, -1);
     }
 
-    @Override
     public List<Proproveedor> findProproveedorEntities(int maxResults, int firstResult) {
         return findProproveedorEntities(false, maxResults, firstResult);
     }
@@ -308,7 +238,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
         }
     }
 
-    @Override
     public Proproveedor findProproveedor(Integer id) {
         EntityManager em = getEntityManager();
         try {
@@ -318,7 +247,6 @@ public class ProproveedorJpaController implements Serializable, IProProveedor {
         }
     }
 
-    @Override
     public int getProproveedorCount() {
         EntityManager em = getEntityManager();
         try {

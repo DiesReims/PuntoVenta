@@ -6,11 +6,9 @@
     <class>Model.Comdatocontacto</class>
     <class>Model.Comdireccion</class>
     <class>Model.Cattipoproveedor</class>
-    <class>Model.Proproducto</class>
     <class>Model.Peddetallepedidoproveedor</class>
     <class>Model.Pedpagospedidoproveedor</class>
     <class>Model.Cattipopago</class>
-    <class>Model.Cattipoproducto</class>
     <class>Model.Vendetalleventa</class>
     <class>Model.Pedpedidoproveedor</class>
     <class>Model.Comestadodireccion</class>
@@ -18,6 +16,10 @@
     <class>Model.Venventa</class>
     <class>Model.Catstatuspedido</class>
     <class>Factory.FactoryProProducto</class>
+    <class>ConcreteExtend.ProProductoJPAExtends</class>
+    <class>Model.Cattipoproducto</class>
+    <class>Model.Proproducto</class>
+    <class>Model.Cattipoproducto_1</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/PuntoVenta"/>
       <property name="javax.persistence.jdbc.password" value="furimmer"/>
